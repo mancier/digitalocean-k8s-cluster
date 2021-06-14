@@ -12,8 +12,11 @@ do_up() {
         -state=terraform/states/terraform.tfstate \
         -state-out=terraform/states/terraform.tfstate \
         -backup=terraform/states/terraform.tfstate.backup \
-        -var-file="./secrets.tfvars" \
         -auto-approve
+    
+    echo "Cluster has been provided"
+    # echo "Starting knative implementation"
+    
 }
 
 do_down(){
@@ -21,7 +24,6 @@ do_down(){
     -state=terraform/states/terraform.tfstate \
     -state-out=terraform/states/terraform.tfstate \
     -backup=terraform/states/terraform.tfstate.backup \
-    -var-file="./secrets.tfvars" \
     -auto-approve
 }
 
