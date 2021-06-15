@@ -6,7 +6,7 @@ resource "digitalocean_kubernetes_cluster" "integration_cluster" {
 
   node_pool {
       name = "${var.cluster_name}-master"
-      size = "s-2vcpu-2gb"
+      size = "s-2vcpu-4gb"
       node_count = 1
       auto_scale = false
   }
