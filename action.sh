@@ -3,28 +3,40 @@ set -xe
 
 ACTION=${1:-up}
 
+if ! doctl --version &> /dev/null; then
+  echo "doctl has not been installed"
+fi
+
 do_up() {
+    cd terraform
     echo "Executing terraform init"
-    terraform -chdir=./terraform init
+    terraform init
 
     echo "Starting terraform apply..."
-    terraform -chdir=./terraform apply \
-        -state=terraform/states/terraform.tfstate \
-        -state-out=terraform/states/terraform.tfstate \
-        -backup=terraform/states/terraform.tfstate.backup \
-        -auto-approve
-    
+    terraform apply \
+        -state=states/terraform.tfstate \
+        -state-out=states/terraform.tfstate \
+        -backup=states/terraform.tfstate.backup \
+        -auto-approve    cd -
     echo "Cluster has been provided"
-    # echo "Starting knative implementation"
+
+    doctl kubernetes kubeconfig show integration-cluster > ~/.kube/integration-cluster
+
+    echo "Starting knative implementation"
+    kubeclt apply --recursive --file knative/serving --kubeconfig ~/.kube/integration-cluster
     
 }
 
 do_down(){
-  terraform -chdir=./terraform destroy \
-    -state=terraform/states/terraform.tfstate \
-    -state-out=terraform/states/terraform.tfstate \
-    -backup=terraform/states/terraform.tfstate.backup \
+  kubeclt destroy --recursive --file knative/serving --kubeconfig ~/.kube/integration-cluster
+
+  cd terraform
+  terraform destroy \
+    -state=states/terraform.tfstate \
+    -state-out=states/terraform.tfstate \
+    -backup=states/terraform.tfstate.backup \
     -auto-approve
+  cd -
 }
 
 if [[ "$ACTION" =~ "up" ]] ;  then
