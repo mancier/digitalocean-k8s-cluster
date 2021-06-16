@@ -52,6 +52,7 @@ metadata:
   labels:
     serving.knative.dev/release: "v0.23.0"
     networking.knative.dev/ingress-provider: istio
+    service.beta.kubernetes.io/do-loadbalancer-name: "integration-production-lb" # Configurar o loadbalancer do cluster
 spec:
   selector:
     istio: ingressgateway

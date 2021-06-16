@@ -3,10 +3,6 @@ set -xe
 
 ACTION=${1:-up}
 
-if ! doctl --version &> /dev/null; then
-  echo "doctl has not been installed"
-fi
-
 do_up() {
     cd terraform
     echo "Executing terraform init"
