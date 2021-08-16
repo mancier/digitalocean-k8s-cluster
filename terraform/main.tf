@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    workspace_dir = "."
+    workspace_dir = "./"
     path = "states/terraform.tfstate"
   }
   required_providers {
