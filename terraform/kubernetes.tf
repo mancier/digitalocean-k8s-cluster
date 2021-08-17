@@ -10,6 +10,15 @@ resource "digitalocean_kubernetes_cluster" "integration_cluster" {
       node_count = 1
       auto_scale = false
   }
+
+  provisioner "local-exec" {
+    workspace_dir = "../"
+    command = "kubectl apply --recursive --file knative/istio/ --file knative/serving/ --file knative/istio/"
+    
+    output "lb_ingress_ip" {
+      value = "$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+    }
+  } 
 }
 
 resource "digitalocean_kubernetes_node_pool" "node_pool" {
