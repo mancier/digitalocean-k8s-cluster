@@ -63,6 +63,12 @@ spec:
         protocol: HTTP
       hosts:
         - "*"
+    - port:
+        number: 443
+        name: https
+        protocol: HTTP
+      hosts:
+        - "*"
 
 ---
 # Copyright 2019 The Knative Authors
@@ -290,7 +296,8 @@ metadata:
     serving.knative.dev/release: "v0.23.0"
     networking.knative.dev/ingress-provider: istio
 data:
-  gateway.knative-serving.knative-ingress-gateway: "istio-ingressgateway.istio-system.svc.cluster.local"
+  #local-gateway.knative-serving.knative-local-gateway: "knative-local-gateway.istio-system.svc.cluster.local"
+  gateway.knative-serving.knative-ingress-gateway: "istio-ingressgateway.istio-system.integration.ikatec.cloud"
   _example: |
     ################################
     #                              #
