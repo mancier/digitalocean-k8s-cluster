@@ -2,6 +2,7 @@
 set -xe
 
 ACTION=${1:-up}
+shift 
 
 do_up() {
     cd terraform
@@ -13,7 +14,7 @@ do_up() {
         -state=states/terraform.tfstate \
         -state-out=states/terraform.tfstate \
         -backup=states/terraform.tfstate.backup \
-        -auto-approve    cd -
+        $*
     echo "Cluster has been provided"
 
     doctl kubernetes kubeconfig show integration-cluster > ~/.kube/integration-cluster
@@ -24,15 +25,14 @@ do_up() {
 }
 
 do_down(){
-  kubeclt destroy --recursive --file knative/serving --kubeconfig ~/.kube/integration-cluster
+  kubectl delete --recursive -f knative/serving --kubeconfig ~/.kube/integration-cluster
 
   cd terraform
   terraform destroy \
     -state=states/terraform.tfstate \
     -state-out=states/terraform.tfstate \
     -backup=states/terraform.tfstate.backup \
-    -auto-approve
-  cd -
+    $*
 }
 
 if [[ "$ACTION" =~ "up" ]] ;  then
