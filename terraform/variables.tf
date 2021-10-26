@@ -38,3 +38,9 @@ variable "environment" {
   type = string
   default = "production"
 }
+
+# K8s config
+variable "k8s_version" {
+  type  = string
+  default = "1.21.3-do.0"
+}

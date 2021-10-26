@@ -1,6 +1,12 @@
+/* data "cloudflare_zones" "cf_zones" {
+  filter {
+    name = "ikatec.cloud"
+  }
+}
+
 resource "cloudflare_record" "integration" {
-    zone_id = var.
+    zone_id = data.cloudflare_zones.cf_zones.id
     name = "dns-integration"
     type = "A"
-    value = digitalocean_kubernetes_cluster.integration_cluster.lb_ingress_ip
-}
+    value = helm_release.istio_ingress.
+} */

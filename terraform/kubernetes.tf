@@ -1,7 +1,7 @@
 resource "digitalocean_kubernetes_cluster" "integration_cluster" {
   name = "${var.cluster_name}-${var.environment}"
   region = var.do_region
-  version = "1.19.11-do.0"
+  version = var.k8s_version
   vpc_uuid = digitalocean_vpc.vpc.id
 
   node_pool {
@@ -10,15 +10,10 @@ resource "digitalocean_kubernetes_cluster" "integration_cluster" {
       node_count = 1
       auto_scale = false
   }
-
-  provisioner "local-exec" {
-    workspace_dir = "../"
-    command = "kubectl apply --recursive --file knative/istio/ --file knative/serving/ --file knative/istio/"
-    
-    output "lb_ingress_ip" {
-      value = "$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
-    }
-  } 
+  
+  depends_on = [
+    digitalocean_vpc.vpc
+  ]
 }
 
 resource "digitalocean_kubernetes_node_pool" "node_pool" {
@@ -31,4 +26,14 @@ resource "digitalocean_kubernetes_node_pool" "node_pool" {
   auto_scale = true
   min_nodes  = 1
   max_nodes  = 5
+
+  depends_on = [
+    digitalocean_kubernetes_cluster.integration_cluster
+  ]
+}
+
+resource "kubernetes_namespace" "istio_system" {
+  metadata {
+    name = "istio-system"
+  }
 }
