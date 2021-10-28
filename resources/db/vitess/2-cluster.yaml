@@ -1,0 +1,89 @@
+# The following example is minimalist. The security policies
+# and resource specifications are not meant to be used in production.
+# Please refer to the operator documentation for recommendations on
+# production settings.
+apiVersion: planetscale.com/v2
+kind: VitessCluster
+metadata:
+  name: mysql
+  namespace: databases
+spec:
+  images:
+    vtctld: vitess/lite:latest
+    vtgate: vitess/lite:latest
+    vttablet: vitess/lite:latest
+    vtbackup: vitess/lite:latest
+    mysqld:
+      mysql56Compatible: vitess/lite:latest
+    mysqldExporter: prom/mysqld-exporter:v0.11.0
+    
+  ######################
+  # Cell configuration #
+  ######################
+  cells:
+  - name: main
+    gateway:
+      authentication:
+        static:
+          secret:
+            name: cluster-config
+            key: users.json
+      replicas: 1
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 256Mi
+  vitessDashboard:
+    cells:
+    - main
+    replicas: 1
+    resources:
+      limits:
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  updateStrategy:
+    type: Immediate
+
+  keyspaces:
+  - name: gatway-admin
+    turndownPolicy: Immediate
+    partitionings:
+    - equal:
+        parts: 1
+        shardTemplate:
+          databaseInitScriptSecret:
+            name: cluster-config
+            key: init_db.sql
+          replication:
+            enforceSemiSync: false
+          tabletPools:
+          - cell: main
+            type: replica
+            replicas: 2
+            vttablet:
+              extraFlags:
+                db_charset: utf8mb4
+              resources:
+                limits:
+                  memory: 256Mi
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+            mysqld:
+              resources:
+                limits:
+                  memory: 256Mi
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+            dataVolumeClaimTemplate:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 1Gi
+    updateStrategy:
+      type: Immediate
