@@ -1,3 +1,7 @@
+resource "digitalocean_tag" "tag" {
+  for_each = toset(var.tags)
+  name = each.value
+}
 resource "digitalocean_vpc" "vpc" {
   name = "${var.cluster_name}-${var.environment}-vpc"
   region = var.do_region
