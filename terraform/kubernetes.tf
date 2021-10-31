@@ -9,11 +9,13 @@ resource "digitalocean_kubernetes_cluster" "integration_cluster" {
       size = "s-2vcpu-4gb"
       node_count = 1
       auto_scale = false
+      tags = var.tags
   }
   
   depends_on = [
     digitalocean_vpc.vpc
   ]
+  tags = var.tags
 }
 
 resource "digitalocean_kubernetes_node_pool" "node_pool" {

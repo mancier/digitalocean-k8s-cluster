@@ -44,3 +44,9 @@ variable "k8s_version" {
   type  = string
   default = "1.21.3-do.0"
 }
+
+variable "tags" {
+  type = list(string)
+  default = ["integration-cluster"]
+
+}
