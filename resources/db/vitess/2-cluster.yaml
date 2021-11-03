@@ -49,7 +49,7 @@ spec:
     type: Immediate
 
   keyspaces:
-  - name: gatway-admin
+  - name: gatewayadmin
     turndownPolicy: Immediate
     partitionings:
     - equal:
