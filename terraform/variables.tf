@@ -42,11 +42,15 @@ variable "environment" {
 # K8s config
 variable "k8s_version" {
   type  = string
-  default = "1.21.3-do.0"
+  default = "1.21.5-do.0"
 }
 
 variable "tags" {
   type = list(string)
   default = ["integration-cluster"]
+}
 
+variable "volume_size" {
+  type = number
+  default = "10"
 }
