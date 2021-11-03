@@ -1,0 +1,19 @@
+apiVersion: serving.knative.dev/v1
+kind: Route
+metadata:
+ name: gtwadmin-route
+ namespace: gateway-admin
+ labels:
+    app.kubernetes.io/name: gateway-admin
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/component: route
+    app.kubernetes.io/part-of: gateway-admin
+ annotations:
+  docs: "https://knative.dev/docs/reference/api/serving-api/#serving.knative.dev/v1.TrafficTarget"
+
+spec:
+ traffic:
+  - configurationName: gtwadmin-service
+    latestRevision: true
+    percent: 100
+ 

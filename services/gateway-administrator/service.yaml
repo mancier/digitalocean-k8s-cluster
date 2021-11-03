@@ -1,0 +1,55 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: gtwadmin-service
+  namespace: gateway-admin
+  labels:
+    app.kubernetes.io/name: "gtwadmin-service"
+    app.kubernetes.io/instance: "gtwadmin-zgdh42"
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/component: service
+    app.kubernetes.io/part-of: gateway-admin
+spec:
+  template:
+    spec:
+      imagePullSecrets: 
+        - name: regcred
+      containers:
+        - image: integrations/gateway-adm:latest
+          workingDir: /var/www
+          command: 
+            - /bin/ash -c 'php artisan migrate -vvv && \
+              php-fpm -y /usr/local/etc/php-fpm.d/www.conf && \
+              nginx -g "daemon off;"'
+          imagePullPolicy: Always
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gtwadmin-database
+                  key: DB_PASSWORD
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: gtwadmin-database
+                  key: DB_USERNAME
+          envFrom:
+            - configMapRef:
+                name: gtwadmin-config
+                key: application
+            - configMapRef:
+                name: gtwadmin-config
+                key: database
+          livenessProbe:
+            exec:
+              command:
+                - "cat /run/nginx/nginx.pid"
+            failureThreshold: 3
+            initialDelaySeconds: 5
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 150m
+              memory: 256M
