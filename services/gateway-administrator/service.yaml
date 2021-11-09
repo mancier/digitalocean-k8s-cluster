@@ -15,12 +15,12 @@ spec:
       imagePullSecrets: 
         - name: regcred
       containers:
-        - image: integrations/gateway-adm:latest
+        - image: 617751658601.dkr.ecr.us-east-2.amazonaws.com/integrations/gateway-adm:0.0.3
           workingDir: /var/www
           command: 
-            - /bin/ash -c 'php artisan migrate -vvv && \
-              php-fpm -y /usr/local/etc/php-fpm.d/www.conf && \
-              nginx -g "daemon off;"'
+            - /bin/sh
+            - -c
+            - "nginx -g \"daemon on;\" && php-fpm -Fy /usr/local/etc/php-fpm.d/www.conf"
           imagePullPolicy: Always
           env:
             - name: DB_PASSWORD
@@ -36,19 +36,25 @@ spec:
           envFrom:
             - configMapRef:
                 name: gtwadmin-config
-                key: application
+                key: data.application
             - configMapRef:
                 name: gtwadmin-config
-                key: database
+                key: data.database
           livenessProbe:
             exec:
               command:
-                - "cat /run/nginx/nginx.pid"
-            failureThreshold: 3
+                - cat
+                - /run/nginx/nginx.pid                
             initialDelaySeconds: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: "/"
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
           ports:
-            - containerPort: 80
-              protocol: TCP
+          - containerPort: 80
+            protocol: TCP
           resources:
             limits:
               cpu: 150m
