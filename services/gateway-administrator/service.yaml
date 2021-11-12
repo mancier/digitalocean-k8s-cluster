@@ -40,13 +40,12 @@ spec:
             - configMapRef:
                 name: gtwadmin-config
                 key: data.database
-          livenessProbe:
+          readinessProbe:
             exec:
               command:
                 - cat
                 - /run/nginx/nginx.pid                
             initialDelaySeconds: 5
-            timeoutSeconds: 10
           livenessProbe:
             httpGet:
               path: "/"
