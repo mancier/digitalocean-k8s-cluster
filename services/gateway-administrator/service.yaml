@@ -21,7 +21,7 @@ spec:
             - /bin/sh
             - -c
             - "nginx -g \"daemon on;\" && php-fpm -Fy /usr/local/etc/php-fpm.d/www.conf"
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: DB_PASSWORD
               valueFrom:
