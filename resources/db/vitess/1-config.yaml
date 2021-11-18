@@ -7,8 +7,8 @@ type: Opaque
 stringData:
   users.json: |
     {
-      "user": [{
-        "UserData": "user",
+      "vitess": [{
+        "UserData": "admin",
         "Password": "pip7ER9SR4lbxmFfLOPKJVuANlxGlC1v"
       }]
     }

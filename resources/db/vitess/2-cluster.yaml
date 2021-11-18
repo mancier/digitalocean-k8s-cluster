@@ -5,21 +5,17 @@
 apiVersion: planetscale.com/v2
 kind: VitessCluster
 metadata:
-  name: mysql
+  name: vitess-cluster
   namespace: databases
 spec:
   images:
-    vtctld: vitess/lite:latest
-    vtgate: vitess/lite:latest
-    vttablet: vitess/lite:latest
-    vtbackup: vitess/lite:latest
+    vtctld: vitess/lite:v12.0.0
+    vtgate: vitess/lite:v12.0.0
+    vttablet: vitess/lite:v12.0.0
+    vtbackup: vitess/lite:v12.0.0
     mysqld:
-      mysql56Compatible: vitess/lite:latest
+      mysql56Compatible: vitess/lite:v12.0.0
     mysqldExporter: prom/mysqld-exporter:v0.11.0
-    
-  ######################
-  # Cell configuration #
-  ######################
   cells:
   - name: main
     gateway:
@@ -38,6 +34,8 @@ spec:
   vitessDashboard:
     cells:
     - main
+    extraFlags:
+      security_policy: read-only
     replicas: 1
     resources:
       limits:
@@ -45,11 +43,9 @@ spec:
       requests:
         cpu: 100m
         memory: 128Mi
-  updateStrategy:
-    type: Immediate
 
   keyspaces:
-  - name: gatewayadmin
+  - name: gtwadmin
     turndownPolicy: Immediate
     partitionings:
     - equal:
@@ -85,5 +81,5 @@ spec:
               resources:
                 requests:
                   storage: 1Gi
-    updateStrategy:
-      type: Immediate
+  updateStrategy:
+    type: Immediate
