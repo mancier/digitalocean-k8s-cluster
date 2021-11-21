@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-domain
+  namespace: knative-serving
+data:
+  # These are example settings of domain.
+  # example.org will be used for routes having app=prod.
+  # knative.digisac.io: |
+  #  selector:
+  #    app: prod
+      
+  # Default value for domain, for routes that does not have app=prod labels.
+  # Although it will match all routes, it is the least-specific rule so it
+  # will only be used if no other domain matches.
+  # Production
+  integration.ikatec.cloud: ""
+  # local
+  # minikube.host: ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: config-autoscaler
+ namespace: knative-serving
+data:
+ pod-autoscaler-class: "kpa.autoscaling.knative.dev"
+ enable-scale-to-zero: "true"
+ scale-to-zero-grace-period: "10m"
+ requests-per-second-target-default: "100"
+---
+apiVersion:  v1
+kind:  ConfigMap
+metadata:
+  name:  config-defaults
+  namespace:  knative-serving
+data:
+  revision-timeout-seconds: "300"
+  max-revision-timeout-seconds: "600"
+  revision-cpu-request: "400m"
+  revision-memory-request: "100M"
+  revision-ephemeral-storage-request: "500M"
+  revision-cpu-limit: "1000m"
+  revision-memory-limit: "200M"
+  revision-ephemeral-storage-limit: "750M"
+  container-name-template: "user-container"
+  container-concurrency: "0"
+  container-concurrency-max-limit: "1000"
+  allow-container-concurrency-zero: "true"
+  enable-service-links: "false"
+  
