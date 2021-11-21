@@ -1,3 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gtw-migration
+  namespace: gateway-admin
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      imagePullSecrets: 
+        - name: regcred
+      containers:
+        - image: 617751658601.dkr.ecr.us-east-2.amazonaws.com/integrations/gateway-adm:0.0.4
+          name: gtw-migration
+          workingDir: /var/www
+          command:
+            - /bin/ash 
+            - -c
+          args:
+            - php artisan migrate --force --no-interaction --verbose
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: gtwadmin-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gtwadmin-root-database
+                  key: rootPassword
+            - name: DB_USERNAME
+              value: root
+            - name: DB_DATABASE
+              value: gtwadmin
+            - name: DB_HOST
+              value: mysql-svc.databases.svc.cluster.local
+          volumeMounts:
+          - name: environment
+            mountPath: "/var/www/environment"
+            readOnly: false
+      volumes:
+      - name: environment
+        configMap:
+          name: gtwadmin-config
+      restartPolicy: OnFailure
+
+---
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -6,21 +53,23 @@ metadata:
   labels:
     app.kubernetes.io/name: "gtwadmin-service"
     app.kubernetes.io/instance: "gtwadmin-zgdh42"
-    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/version: "0.0.4"
     app.kubernetes.io/component: service
     app.kubernetes.io/part-of: gateway-admin
 spec:
   template:
     spec:
       imagePullSecrets: 
-        - name: regcred
+      - name: regcred
       containers:
-        - image: 617751658601.dkr.ecr.us-east-2.amazonaws.com/integrations/gateway-adm:0.0.3
+        - image: 617751658601.dkr.ecr.us-east-2.amazonaws.com/integrations/gateway-adm:0.0.4
+          name: gateway-admin
           workingDir: /var/www
-          command: 
-            - /bin/sh
+          command:
+            - /bin/ash
             - -c
-            - "nginx -g \"daemon on;\" && php-fpm -Fy /usr/local/etc/php-fpm.d/www.conf"
+          args:
+            - cp ./environment/.env .env && nginx -g "daemon on;" && php-fpm -y /usr/local/etc/php-fpm.conf
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_PASSWORD
@@ -33,24 +82,22 @@ spec:
                 secretKeyRef:
                   name: gtwadmin-database
                   key: DB_USERNAME
+          volumeMounts:
+          - name: environment
+            mountPath: "/var/www/environment"
+            readOnly: false          
           envFrom:
             - configMapRef:
                 name: gtwadmin-config
-                key: data.application
-            - configMapRef:
-                name: gtwadmin-config
-                key: data.database
-          readinessProbe:
-            exec:
-              command:
-                - cat
-                - /run/nginx/nginx.pid                
-            initialDelaySeconds: 5
+                optional: false
+          #   httpGet:
+          #     path: "/"
+          #   initialDelaySeconds: 5
           livenessProbe:
             httpGet:
               path: "/"
             initialDelaySeconds: 10
-            timeoutSeconds: 10
+            timeoutSeconds: 5
           ports:
           - containerPort: 80
             protocol: TCP
@@ -58,3 +105,7 @@ spec:
             limits:
               cpu: 150m
               memory: 256M
+      volumes:
+      - name: environment
+        configMap:
+          name: gtwadmin-config

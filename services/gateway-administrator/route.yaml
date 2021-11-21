@@ -5,7 +5,7 @@ metadata:
  namespace: gateway-admin
  labels:
     app.kubernetes.io/name: gateway-admin
-    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/version: "0.0.4"
     app.kubernetes.io/component: route
     app.kubernetes.io/part-of: gateway-admin
  annotations:
